@@ -3,6 +3,8 @@ mod system;
 
 // This is our main Runtime.
 // It accumulates all of the different pallets we want to use.
+/* TODO: Add the derive macro to implement the `Debug` trait for `Pallet`. */
+#[derive(Debug)]
 pub struct Runtime {
     system: system::Pallet,
     balances: balances::Pallet,
@@ -49,4 +51,29 @@ fn main() {
         .balances
         .transfer(&String::from("alice"), &String::from("charlie"), 20)
         .map_err(|e| print!("{}", e));
+
+    /* TODO: Print the final runtime state after all transactions. */
+    println!("{:#?}", runtime);
+    /*
+    cwasilei@babydoll:~/projects/rust-state-machine$ cargo run
+    Compiling rust-state-machine v0.1.0 (/home/cwasilei/projects/rust-state-machine)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+    Running `target/debug/rust-state-machine`
+
+    Runtime {
+        system: Pallet {
+            block_number: 1,
+            nonce: {
+                "alice": 2,
+            },
+        },
+        balances: Pallet {
+            balances: {
+                "alice": 50,
+                "bob": 30,
+                "charlie": 20,
+            },
+        },
+    }
+    */
 }
