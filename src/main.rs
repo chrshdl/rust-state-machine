@@ -3,13 +3,15 @@ mod system;
 
 type AccountID = String;
 type Balance = u128;
+type BlockNumber = u32;
+type NonceNumber = u32;
 
 // This is our main Runtime.
 // It accumulates all of the different pallets we want to use.
 /* TODO: Add the derive macro to implement the `Debug` trait for `Pallet`. */
 #[derive(Debug)]
 pub struct Runtime {
-    system: system::Pallet,
+    system: system::Pallet<AccountID, BlockNumber, NonceNumber>,
     balances: balances::Pallet<AccountID, Balance>,
 }
 
