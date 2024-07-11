@@ -1,27 +1,27 @@
+use num::traits::{CheckedAdd, CheckedSub, Zero};
 use std::collections::BTreeMap;
 
-type Balance = u128;
-type AccountID = String;
-
 #[derive(Debug)]
-pub struct Pallet {
+pub struct Pallet<AccountID, Balance> {
     balances: BTreeMap<AccountID, Balance>,
 }
 
-impl Pallet {
+impl<AccountID: Clone + Ord, Balance: Ord + Zero + CheckedSub + CheckedAdd + Copy>
+    Pallet<AccountID, Balance>
+{
     pub fn new() -> Self {
         Self { balances: BTreeMap::new() }
     }
 
     /// Set the balance of an account `who` to some `amount`.
     pub fn set_balance(&mut self, who: &AccountID, amount: Balance) {
-        self.balances.insert(who.to_string(), amount);
+        self.balances.insert(who.clone(), amount);
     }
 
     /// Get the balance of an account `who`.
     /// If the account has no stored balance, we return zero.
     pub fn balance(&self, who: &AccountID) -> Balance {
-        *self.balances.get(who).unwrap_or(&0)
+        *self.balances.get(who).unwrap_or(&Balance::zero())
     }
 
     /// Transfer `amount` from one account to another.
@@ -34,11 +34,11 @@ impl Pallet {
         amount: Balance,
     ) -> Result<(), &'static str> {
         let balance_sender = self.balance(from);
-        let new_balance_sender = balance_sender.checked_sub(amount).ok_or("Unsufficient balance");
+        let new_balance_sender = balance_sender.checked_sub(&amount).ok_or("Unsufficient balance");
         self.set_balance(from, new_balance_sender?);
 
         let balance_receiver = self.balance(to);
-        let new_balance_receiver = balance_receiver.checked_add(amount).ok_or("Overflow");
+        let new_balance_receiver = balance_receiver.checked_add(&amount).ok_or("Overflow");
         self.set_balance(to, new_balance_receiver?);
 
         Ok(())
