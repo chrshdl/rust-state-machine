@@ -21,7 +21,7 @@ fn main() {
     /* TODO: Create a mutable variable `runtime`, which is a new instance of `Runtime`. */
     let mut runtime = Runtime::new();
     /* TODO: Set the balance of `alice` to 100, allowing us to execute other transactions. */
-    runtime.balances.set_balance(&String::from("alice"), 100);
+    runtime.balances.set_balance(&"alice".to_string(), 100);
 
     // start emulating a block
     /* TODO: Increment the block number in system. */
@@ -31,7 +31,7 @@ fn main() {
 
     // first transaction
     /* TODO: Increment the nonce of `alice`. */
-    runtime.system.inc_nonce(&String::from("alice"));
+    runtime.system.inc_nonce(&"alice".to_string());
     /* TODO: Execute a transfer from `alice` to `bob` for 30 tokens.
         - The transfer _could_ return an error. We should use `map_err` to print
           the error if there is one.
@@ -39,17 +39,17 @@ fn main() {
     */
     let _res = runtime
         .balances
-        .transfer(&String::from("alice"), &String::from("bob"), 30)
+        .transfer(&"alice".to_string(), &"bob".to_string(), 30)
         .map_err(|e| print!("{}", e));
 
     // second transaction
     /* TODO: Increment the nonce of `alice` again. */
-    runtime.system.inc_nonce(&String::from("alice"));
+    runtime.system.inc_nonce(&"alice".to_string());
 
     /* TODO: Execute another balance transfer, this time from `alice` to `charlie` for 20. */
     let _res = runtime
         .balances
-        .transfer(&String::from("alice"), &String::from("charlie"), 20)
+        .transfer(&"alice".to_string(), &"charlie".to_string(), 20)
         .map_err(|e| print!("{}", e));
 
     /* TODO: Print the final runtime state after all transactions. */

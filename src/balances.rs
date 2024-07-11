@@ -1,8 +1,11 @@
 use std::collections::BTreeMap;
 
+type Balance = u128;
+type AccountID = String;
+
 #[derive(Debug)]
 pub struct Pallet {
-    balances: BTreeMap<String, u128>,
+    balances: BTreeMap<AccountID, Balance>,
 }
 
 impl Pallet {
@@ -11,13 +14,13 @@ impl Pallet {
     }
 
     /// Set the balance of an account `who` to some `amount`.
-    pub fn set_balance(&mut self, who: &String, amount: u128) {
+    pub fn set_balance(&mut self, who: &AccountID, amount: Balance) {
         self.balances.insert(who.to_string(), amount);
     }
 
     /// Get the balance of an account `who`.
     /// If the account has no stored balance, we return zero.
-    pub fn balance(&self, who: &String) -> u128 {
+    pub fn balance(&self, who: &AccountID) -> Balance {
         *self.balances.get(who).unwrap_or(&0)
     }
 
@@ -26,9 +29,9 @@ impl Pallet {
     /// and that no mathematical overflows occur.
     pub fn transfer(
         &mut self,
-        from: &String,
-        to: &String,
-        amount: u128,
+        from: &AccountID,
+        to: &AccountID,
+        amount: Balance,
     ) -> Result<(), &'static str> {
         let balance_sender = self.balance(from);
         let new_balance_sender = balance_sender.checked_sub(amount).ok_or("Unsufficient balance");
@@ -46,29 +49,29 @@ impl Pallet {
 fn init_balances() {
     let mut p = Pallet::new();
 
-    assert_eq!(p.balance(&String::from("wasi")), 0);
+    assert_eq!(p.balance(&"wasi".to_string()), 0);
 
-    p.set_balance(&String::from("wasi"), 1);
+    p.set_balance(&"wasi".to_string(), 1);
 
-    assert_eq!(p.balance(&String::from("wasi")), 1);
+    assert_eq!(p.balance(&"wasi".to_string()), 1);
 }
 
 #[test]
 fn transfer_balance() {
     let mut p = Pallet::new();
     assert_eq!(
-        p.transfer(&String::from("wasi"), &String::from("alice"), 1),
+        p.transfer(&"wasi".to_string(), &"alice".to_string(), 1),
         Err("Unsufficient balance")
     );
-    assert_eq!(p.balance(&String::from("wasi")), 0);
-    assert_eq!(p.balance(&String::from("alice")), 0);
+    assert_eq!(p.balance(&"wasi".to_string()), 0);
+    assert_eq!(p.balance(&"alice".to_string()), 0);
 
-    p.set_balance(&String::from("wasi"), 1);
-    assert_eq!(p.transfer(&String::from("wasi"), &String::from("alice"), 1), Ok(()));
-    assert_eq!(p.balance(&String::from("wasi")), 0);
-    assert_eq!(p.balance(&String::from("alice")), 1);
+    p.set_balance(&"wasi".to_string(), 1);
+    assert_eq!(p.transfer(&"wasi".to_string(), &"alice".to_string(), 1), Ok(()));
+    assert_eq!(p.balance(&"wasi".to_string()), 0);
+    assert_eq!(p.balance(&"alice".to_string()), 1);
 
-    p.set_balance(&String::from("wasi"), 1);
-    p.set_balance(&String::from("alice"), u128::max_value());
-    assert_eq!(p.transfer(&String::from("wasi"), &String::from("alice"), 1), Err("Overflow"));
+    p.set_balance(&"wasi".to_string(), 1);
+    p.set_balance(&"alice".to_string(), u128::max_value());
+    assert_eq!(p.transfer(&"wasi".to_string(), &"alice".to_string(), 1), Err("Overflow"));
 }
